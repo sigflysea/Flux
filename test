@@ -1,0 +1,176 @@
+Objective: Understanding the creation of  simple flux stream of Stock objects using the reactive features available in Spring 5.
+The structure of the application goes as follows:
+
+Step 1: Content of Application.java is as follows:
+package com.infystock;
+import org.springframework.boot.CommandLineRunner;
+import  org.springframework.boot.SpringApplication;
+import  org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+    @Bean
+    CommandLineRunner StockOnConsole() throws InterruptedException {
+        return args -> {
+                 StockGenerator.fluxAll().subscribe(System.out::println);
+                 //System.out.println(StockGenerator.ListAll());
+            };
+        };
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+        }
+    }
+Step 2: Content of StockGenerator.java is as follows. Here the function Fluxall() generates a stream of flux Stock values and ListAll() generates a list of Stock values.
+package com.infystock;
+import reactor.core.publisher.Flux;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
+import io.netty.util.internal.ThreadLocalRandom;
+public class StockGenerator{  
+    public  static Flux<Integer> fluxAll(){
+    int min=356;
+    int max=456;
+        System.out.println("The Stock values of ABC Ltd. are as follows:");
+        System.out.println("************************************************");
+        Flux<Integer> flux=Flux.interval(Duration.ofSeconds(1)).map(n-> ThreadLocalRandom.current().nextInt(min, max) );        
+        return  flux;
+    }
+    public  static List<Integer> ListAll(){
+        int min=356;
+        int max=456;
+        System.out.println("The Stock values of ABC Ltd. are as follows:");
+        System.out.println("************************************************");  
+        List<Integer> listStock = new ArrayList<Integer>();
+        for(int i=0;i<=20;i++)
+        {
+            listStock.add(ThreadLocalRandom.current().nextInt(min, max));
+        }
+            return  listStock; 
+        }
+    }
+Step 3: The contents of pom.xml is as follows
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>Infystock</groupId>
+    <artifactId>spring5reactivestock</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>spring5reactivestock</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.0.M3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+          <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>        
+       
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>         
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+           <!--  <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin> -->
+        </plugins>
+    </build>
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+</project>
+ 
+Step 4: Right click on the project name, run the application, and observe the stream of Flux being generated in the console.
